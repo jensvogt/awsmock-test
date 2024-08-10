@@ -33,6 +33,16 @@ public class CognitoService {
         }
     }
 
+    public void describeUserPool(String userPoolId) {
+
+        DescribeUserPoolResponse response = cognitoIdentityProviderClient.describeUserPool(DescribeUserPoolRequest.builder().userPoolId(userPoolId).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Describe user pool, userPoolId: {}", userPoolId);
+        } else {
+            log.error("Could not describe user pool, userPoolId: {}", userPoolId);
+        }
+    }
+
     public void deleteUserPool(String userPoolId) {
 
         DeleteUserPoolResponse response = cognitoIdentityProviderClient.deleteUserPool(DeleteUserPoolRequest.builder().userPoolId(userPoolId).build());
@@ -60,6 +70,46 @@ public class CognitoService {
             log.info("User deleted, userPoolId: {}, userName: {}", userPoolId, userName);
         } else {
             log.error("Could not delete user, userPoolId: {}, userName: {}", userPoolId, userName);
+        }
+    }
+
+    public void createUserGroup(String userPoolId, String groupName) {
+
+        CreateGroupResponse response = cognitoIdentityProviderClient.createGroup(CreateGroupRequest.builder().userPoolId(userPoolId).groupName(groupName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User group created, userPoolId: {}, groupName: {}", userPoolId, groupName);
+        } else {
+            log.error("Could not create user group, userPoolId: {}, groupName: {}", userPoolId, groupName);
+        }
+    }
+
+    public void addUserToGroup(String userPoolId, String groupName, String userName) {
+
+        AdminAddUserToGroupResponse response = cognitoIdentityProviderClient.adminAddUserToGroup(AdminAddUserToGroupRequest.builder().userPoolId(userPoolId).groupName(groupName).username(userName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Added user to group, userPoolId: {}, groupName: {}, userName: {}", userPoolId, groupName, userName);
+        } else {
+            log.error("Could not add user to group, userPoolId: {}, groupName: {}, userName: {}", userPoolId, groupName, userName);
+        }
+    }
+
+    public void removeUserFromGroup(String userPoolId, String groupName, String userName) {
+
+        AdminRemoveUserFromGroupResponse response = cognitoIdentityProviderClient.adminRemoveUserFromGroup(AdminRemoveUserFromGroupRequest.builder().userPoolId(userPoolId).groupName(groupName).username(userName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Remove user from group, userPoolId: {}, groupName: {}, userName: {}", userPoolId, groupName, userName);
+        } else {
+            log.error("Could not remove user from group, userPoolId: {}, groupName: {}, userName: {}", userPoolId, groupName, userName);
+        }
+    }
+
+    public void deleteUserGroup(String userPoolId, String groupName) {
+
+        DeleteGroupResponse response = cognitoIdentityProviderClient.deleteGroup(DeleteGroupRequest.builder().userPoolId(userPoolId).groupName(groupName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User group deleted, userPoolId: {}, groupName: {}", userPoolId, groupName);
+        } else {
+            log.error("Could not delete user group, userPoolId: {}, groupName: {}", userPoolId, groupName);
         }
     }
 }
