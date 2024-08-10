@@ -15,14 +15,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.awscore.AwsClient;
 import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
-import software.amazon.awssdk.http.nio.netty.NettyNioAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsAsyncClientBuilder;
@@ -30,7 +27,6 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
 
 @Slf4j
 @Configuration
@@ -38,11 +34,11 @@ import java.time.Duration;
 @RequiredArgsConstructor
 public class AwsConfig {
 
-    private static final Integer CALL_TIMEOUT_SECONDS = 240;
-    private static final Integer CALL_ATTEMPT_TIMEOUT_SECONDS = 60;
-
     @Value("${de.jensvogt.awsmock.endpoint}")
     protected String awsmockEndpoint;
+
+    @Value("${server.port}")
+    private int serverPort;
 
     @Primary
     @Bean(name = "credentialsProvider")
@@ -55,13 +51,6 @@ public class AwsConfig {
     public SqsAsyncClient sqsAsyncClient(
             @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         SqsAsyncClientBuilder builder = SqsAsyncClient.builder();
-        /*builder.httpClientBuilder(
-                NettyNioAsyncHttpClient.builder()
-                        .connectionAcquisitionTimeout(Duration.ofSeconds(CALL_TIMEOUT_SECONDS)));
-        builder.overrideConfiguration(
-                b ->
-                        b.apiCallTimeout(Duration.ofSeconds(CALL_TIMEOUT_SECONDS))
-                                .apiCallAttemptTimeout(Duration.ofSeconds(CALL_ATTEMPT_TIMEOUT_SECONDS)));*/
         return buildClient(builder, awsCredentialsProvider);
     }
 
@@ -115,7 +104,7 @@ public class AwsConfig {
 
     private <T extends AwsClientBuilder<T, S>, S extends AwsClient> void setEndpointAndRegion(
             T builder, AwsCredentialsProvider awsCredentialsProvider) {
-        log.info("Using endpoint: " + awsmockEndpoint);
+        log.info("Using endpoint: {}, serverPort: {}", awsmockEndpoint, serverPort);
         builder.region(Region.EU_CENTRAL_1);
         builder.endpointOverride(URI.create(awsmockEndpoint));
         if (awsCredentialsProvider != null) {

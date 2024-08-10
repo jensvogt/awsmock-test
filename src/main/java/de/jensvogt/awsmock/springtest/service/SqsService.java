@@ -11,11 +11,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -39,12 +35,7 @@ public class SqsService {
         tags.put("tagName", "tagValue");
 
         String queueUrl = null;
-        CreateQueueResponse response = sqsClient.createQueue(CreateQueueRequest
-                .builder()
-                .queueName(queueName)
-                .attributes(attributes)
-                .tags(tags)
-                .build());
+        CreateQueueResponse response = sqsClient.createQueue(CreateQueueRequest.builder().queueName(queueName).attributes(attributes).tags(tags).build());
         if (response.sdkHttpResponse().isSuccessful()) {
             queueUrl = response.queueUrl();
             log.info("Queue created queueUrl: {}", queueUrl);
@@ -56,11 +47,7 @@ public class SqsService {
 
     public Map<QueueAttributeName, String> getAllQueueAttributes(String queueUrl) {
 
-        GetQueueAttributesResponse response = sqsClient.getQueueAttributes(GetQueueAttributesRequest
-                .builder()
-                .queueUrl(queueUrl)
-                .attributeNames(QueueAttributeName.ALL)
-                .build());
+        GetQueueAttributesResponse response = sqsClient.getQueueAttributes(GetQueueAttributesRequest.builder().queueUrl(queueUrl).attributeNames(QueueAttributeName.ALL).build());
 
         if (response.sdkHttpResponse().isSuccessful()) {
 
@@ -76,13 +63,9 @@ public class SqsService {
         return new HashMap<>();
     }
 
-    public Map<QueueAttributeName, String>  getSingleQueueAttribute(String queueUrl, String attributeName) {
+    public Map<QueueAttributeName, String> getSingleQueueAttribute(String queueUrl, String attributeName) {
 
-        GetQueueAttributesResponse response = sqsClient.getQueueAttributes(GetQueueAttributesRequest
-                .builder()
-                .queueUrl(queueUrl)
-                .attributeNames(QueueAttributeName.valueOf(attributeName))
-                .build());
+        GetQueueAttributesResponse response = sqsClient.getQueueAttributes(GetQueueAttributesRequest.builder().queueUrl(queueUrl).attributeNames(QueueAttributeName.valueOf(attributeName)).build());
 
         if (response.sdkHttpResponse().isSuccessful()) {
 
@@ -115,23 +98,21 @@ public class SqsService {
         return "";
     }
 
-    public void sendMessage(String queueUrl, TestMessage testMessage) throws JsonProcessingException {
+    public String sendMessage(String queueUrl, TestMessage testMessage) throws JsonProcessingException {
 
+        String messageId = null;
         String jsonString = objectMapper.writeValueAsString(testMessage);
-        SendMessageResponse response = sqsClient.sendMessage(SendMessageRequest
-                .builder()
-                .queueUrl(queueUrl)
-                .messageBody(jsonString)
-                .build());
+        SendMessageResponse response = sqsClient.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(jsonString).build());
         if (response.sdkHttpResponse().isSuccessful()) {
-            String messageId = response.messageId();
-            log.info("Send message, id: {}", messageId);
+            messageId = response.messageId();
+            log.info("Send message, queuerUrl: {},id: {}", queueUrl, messageId);
         } else {
-            log.error("Could not send message, queueUrl: {}", ""/*queueUrl*/);
+            log.error("Could not send message, queueUrl: {}", queueUrl);
         }
+        return messageId;
     }
 
-    public void sendSqsTemplate(TestMessage testMessage) throws JsonProcessingException {
+    public void sendSqsTemplate(TestMessage testMessage) {
 
         log.info("Received send message via sns template request, testMessage: {}", testMessage);
 
@@ -140,10 +121,54 @@ public class SqsService {
 
     }
 
-    /*@SqsListener(queueNames = {"http://vogje01-nuc:4566/000000000000/test-queue"})
-    public void SqsListener(@Payload TestMessage testMessage, @Headers MessagingMessageHeaders messageHeaders) {
-        log.info("Receive message, id: {}", messageHeaders.get(MessageHeaders.ID));
-        log.info("Receive message, message: {}", testMessage.toString());
-        cleanup();
-    }*/
+    public List<TestMessage> receiveMessages(String queueUrl, int maxMessages, int maxWaitTime) throws JsonProcessingException {
+
+        List<Message> messages;
+        List<TestMessage>testMessages = new ArrayList<>();
+        ReceiveMessageResponse response = sqsClient.receiveMessage(ReceiveMessageRequest.builder().queueUrl(queueUrl).maxNumberOfMessages(maxMessages).waitTimeSeconds(maxWaitTime).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            messages = response.messages();
+
+            for(Message message:messages) {
+                TestMessage testMessage = objectMapper.readValue(message.body(), TestMessage.class);
+                testMessage.setReceiptHandle(message.receiptHandle());
+                testMessages.add(testMessage);
+            }
+
+            log.info("Receive messages, queueUrl: {}, size: {}", queueUrl, messages.size());
+        } else {
+            log.error("Could not receive messages, queueUrl: {}", queueUrl);
+        }
+        return testMessages;
+    }
+
+    public void deleteMessage(String queueName, String receiptHandle) {
+
+        log.info("Received delete message request, queueName: {} receiptHandle: {}", queueName, receiptHandle);
+
+        String queueUrl = getQueueUrl(queueName);
+        DeleteMessageResponse response = sqsClient.deleteMessage(DeleteMessageRequest.builder().queueUrl(queueUrl).receiptHandle(receiptHandle).build());
+
+        log.info("Message deleted, queueUrl: {}, receiptHandle: {}, httpStatus: {}", queueUrl, receiptHandle, response.sdkHttpResponse().statusCode());
+    }
+
+    public void deleteQueue(String queueName) {
+
+        log.info("Received delete queue request, queueName: {}", queueName);
+
+        String queueUrl = getQueueUrl(queueName);
+        DeleteQueueResponse response = sqsClient.deleteQueue(DeleteQueueRequest.builder().queueUrl(queueUrl).build());
+
+        log.info("Queue deleted, queueUrl: {}, httpStatus: {}", queueUrl, response.sdkHttpResponse().statusCode());
+    }
+
+    public void cleanup() {
+
+        log.info("Received cleanup request");
+
+        String queueUrl = getQueueUrl("test-queue");
+        DeleteQueueResponse response = sqsClient.deleteQueue(DeleteQueueRequest.builder().queueUrl(queueUrl).build());
+
+        log.info("Cleanup, httpStatus: {}", response.sdkHttpResponse().statusCode());
+    }
 }

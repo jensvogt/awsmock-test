@@ -12,4 +12,6 @@ import lombok.NoArgsConstructor;
 public class TestMessage {
 
     private String testKey;
+
+    private String receiptHandle;
 }
