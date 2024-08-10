@@ -21,6 +21,7 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.awscore.AwsClient;
 import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsAsyncClientBuilder;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -75,6 +76,13 @@ public class AwsConfig {
                             converter.setPayloadTypeHeaderValueFunction(message -> null);
                         })
                 .build();
+    }
+
+    @Bean
+    @Primary
+    public S3Client s3Client(
+            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+        return buildClient(S3Client.builder(), awsCredentialsProvider);
     }
 
     /**
