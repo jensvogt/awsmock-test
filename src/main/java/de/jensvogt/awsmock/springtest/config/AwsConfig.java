@@ -21,11 +21,14 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.awscore.AwsClient;
 import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.internal.crt.S3CrtAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.SqsAsyncClientBuilder;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
 
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -85,6 +88,27 @@ public class AwsConfig {
             @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         S3ClientBuilder builder = S3Client.builder().forcePathStyle(true);
         return buildClient(builder, awsCredentialsProvider);
+    }
+
+    @Bean
+    @Primary
+    public S3AsyncClient s3AsyncClient(
+            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+        return S3CrtAsyncClient.builder()
+                .credentialsProvider(awsCredentialsProvider)
+                .checksumValidationEnabled(false)
+                .region(Region.EU_CENTRAL_1)
+                .endpointOverride(URI.create(awsmockEndpoint))
+                .forcePathStyle(true)
+                .build();
+    }
+
+    @Bean
+    @Primary
+    public S3TransferManager s3TransferManager(S3AsyncClient s3AsyncClient) {
+        return S3TransferManager.builder()
+                .s3Client(s3AsyncClient)
+                .build();
     }
 
     /**

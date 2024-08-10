@@ -9,6 +9,11 @@ import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest;
+import software.amazon.awssdk.transfer.s3.model.FileDownload;
+import software.amazon.awssdk.transfer.s3.model.FileUpload;
+import software.amazon.awssdk.transfer.s3.model.UploadFileRequest;
 
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -23,6 +28,7 @@ import java.nio.file.Path;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final S3TransferManager s3TransferManager;
 
     public String createBucket(String bucketName) {
 
@@ -69,6 +75,38 @@ public class S3Service {
         } catch (IOException | S3Exception ex) {
             log.error("Could not create object, bucketName: {}, key: {}", bucketName, key);
         }
+    }
+
+    public void uploadObject(String bucketName, String key, int size) throws IOException {
+
+        Path destination = writeRandomFile(size * 1024 * 1024);
+        UploadFileRequest uploadFileRequest =
+                UploadFileRequest.builder()
+                        .putObjectRequest(r -> r.bucket(bucketName).key(key))
+                        .source(destination)
+                        .build();
+
+        FileUpload uploadFile = s3TransferManager.uploadFile(uploadFileRequest);
+        uploadFile.completionFuture().join();
+
+        log.info("Object uploaded, bucketName: {}, key: {}, size: {}", bucketName, key, size);
+        FileUtils.deleteQuietly(destination.toFile());
+    }
+
+    public void downloadObject(String bucketName, String key) throws IOException {
+
+        Path destination = Files.createTempFile("random", ".txt");
+        DownloadFileRequest downloadFileRequest =
+                DownloadFileRequest.builder()
+                        .getObjectRequest(b -> b.bucket(bucketName).key(key))
+                        .destination(destination)
+                        .build();
+
+        FileDownload downloadFile = s3TransferManager.downloadFile(downloadFileRequest);
+        downloadFile.completionFuture().join();
+
+        log.info("Object downloaded, bucketName: {}, key: {}", bucketName, key);
+        FileUtils.deleteQuietly(destination.toFile());
     }
 
     public void deleteBucket(String bucketName) {
