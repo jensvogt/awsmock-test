@@ -44,6 +44,24 @@ public class S3CommandController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(path = "/uploadObject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> uploadObject(@RequestParam("bucketName") String bucketName, @RequestParam("key") String key, @RequestParam("size") int size) throws IOException {
+
+        log.info("GET request, uploadObject, bucketName: {}, key: {}, size: {}", bucketName, key, size);
+        s3Service.uploadObject(bucketName, key, size);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/downloadObject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> downloadObject(@RequestParam("bucketName") String bucketName, @RequestParam("key") String key) throws IOException {
+
+        log.info("GET request, downloadObject, bucketName: {}, key: {}", bucketName, key);
+        s3Service.downloadObject(bucketName, key);
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping(path = "/deleteBucket", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Void> deleteBucket(@RequestParam("bucketName") String bucketName) {
 
