@@ -21,6 +21,8 @@ import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.awscore.AwsClient;
 import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
@@ -53,16 +55,14 @@ public class AwsConfig {
 
     @Bean
     @Primary
-    public SqsAsyncClient sqsAsyncClient(
-            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+    public SqsAsyncClient sqsAsyncClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         SqsAsyncClientBuilder builder = SqsAsyncClient.builder();
         return buildClient(builder, awsCredentialsProvider);
     }
 
     @Bean
     @Primary
-    public SqsClient sqsClient(
-            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+    public SqsClient sqsClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         return buildClient(SqsClient.builder(), awsCredentialsProvider);
     }
 
@@ -84,16 +84,14 @@ public class AwsConfig {
 
     @Bean
     @Primary
-    public S3Client s3Client(
-            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+    public S3Client s3Client(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         S3ClientBuilder builder = S3Client.builder().forcePathStyle(true);
         return buildClient(builder, awsCredentialsProvider);
     }
 
     @Bean
     @Primary
-    public S3AsyncClient s3AsyncClient(
-            @Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+    public S3AsyncClient s3AsyncClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         return S3CrtAsyncClient.builder()
                 .credentialsProvider(awsCredentialsProvider)
                 .checksumValidationEnabled(false)
@@ -109,6 +107,18 @@ public class AwsConfig {
         return S3TransferManager.builder()
                 .s3Client(s3AsyncClient)
                 .build();
+    }
+
+    @Bean
+    @Primary
+    public CognitoIdentityClient cognitoIdentityClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+        return buildClient(CognitoIdentityClient.builder(), awsCredentialsProvider);
+    }
+
+    @Bean
+    @Primary
+    public CognitoIdentityProviderClient cognitoIdentityProviderClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+        return CognitoIdentityProviderClient.builder().credentialsProvider(awsCredentialsProvider).endpointOverride(URI.create(awsmockEndpoint)).region(Region.EU_CENTRAL_1).build();
     }
 
     /**
