@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%thread] %-5level %logger{35} - %file:%line - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="awsmock">
+        <root additivity="false">
+            <appender-ref ref="console"/>
+        </root>
+
+        <logger name="de.jensvogt" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+
+    </springProfile>
+
+</configuration>
