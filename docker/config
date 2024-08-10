@@ -1,0 +1,8 @@
+[default]
+region = eu-central-1
+output = json
+
+[profile awsmock]
+region = eu-central-1
+output = json
+endpoint_url = http://localhost:4566
