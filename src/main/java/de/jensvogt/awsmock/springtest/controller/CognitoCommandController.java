@@ -42,6 +42,24 @@ public class CognitoCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping(path = "/createUserPoolClient", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> createUserPoolClient(@RequestParam("userPoolId") String userPoolId, @RequestParam("clientName") String clientName) {
+
+        log.info("GET request, createUserPoolClient, userPoolId: {}, clientName: {}", userPoolId, clientName);
+        cognitoService.createUserPoolClient(userPoolId, clientName);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/createUserPoolDomain", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> createUserPoolDomain(@RequestParam("userPoolId") String userPoolId, @RequestParam("domainName") String domainName) {
+
+        log.info("GET request, createUserPoolDomain, userPoolId: {}, domainName: {}", userPoolId, domainName);
+        cognitoService.createUserPoolDomain(userPoolId, domainName);
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping(path = "/deleteUserPool", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> deleteUserPool(@RequestParam("userPoolId") String userPoolId) {
 
