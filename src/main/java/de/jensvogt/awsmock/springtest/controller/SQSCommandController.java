@@ -2,7 +2,7 @@ package de.jensvogt.awsmock.springtest.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import de.jensvogt.awsmock.springtest.dto.TestMessage;
-import de.jensvogt.awsmock.springtest.service.SqsService;
+import de.jensvogt.awsmock.springtest.service.SQSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -19,10 +19,10 @@ import java.util.Map;
 @RequestMapping(path = "/api/sqs", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SQSCommandController {
 
-    private final SqsService sqsService;
+    private final SQSService sqsService;
 
     @PostMapping(path = "/createQueue", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<String> createQueue(@RequestBody String queueName) {
+    ResponseEntity<String> createQueue(@RequestParam("queueName") String queueName) {
 
         log.info("POST request, createQueue, queueName: {}", queueName);
         String queueUrl = sqsService.createQueue(queueName);

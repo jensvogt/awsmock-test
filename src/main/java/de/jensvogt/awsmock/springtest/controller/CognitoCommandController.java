@@ -78,6 +78,33 @@ public class CognitoCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(path = "/enableUser", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> enableUser(@RequestParam("userPoolId") String userPoolId, @RequestParam("userName") String userName) {
+
+        log.info("POST request, enableUser, userPoolId: {}, userName: {}", userPoolId, userName);
+        cognitoService.enableUser(userPoolId, userName);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/disableUser", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> disableUser(@RequestParam("userPoolId") String userPoolId, @RequestParam("userName") String userName) {
+
+        log.info("POST request, disableUser, userPoolId: {}, userName: {}", userPoolId, userName);
+        cognitoService.disableUser(userPoolId, userName);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/signupUser", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> signupUser(@RequestParam("userName") String userName, @RequestParam("clientId") String clientId, @RequestParam("password") String password) {
+
+        log.info("POST request, signupUser, userName: {}, clientId: {}", userName, clientId);
+        String userSub = cognitoService.signupUser(userName, clientId, password);
+
+        return ResponseEntity.ok(userSub);
+    }
+
     @DeleteMapping(path = "/deleteUser", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> deleteUser(@RequestParam("userPoolId") String userPoolId, @RequestParam("userName") String userName) {
 
@@ -103,6 +130,15 @@ public class CognitoCommandController {
         cognitoService.addUserToGroup(userPoolId, groupName, userName);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/listUsersInGroup", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Integer> listUsersInGroup(@RequestParam("userPoolId") String userPoolId, @RequestParam("groupName") String groupName) {
+
+        log.info("GET request, listUsersInGroup, userPoolId: {}, groupName: {}", userPoolId, groupName);
+        int count = cognitoService.listUsersInGroup(userPoolId, groupName);
+
+        return ResponseEntity.ok(count);
     }
 
     @PostMapping(path = "/removeUserFromGroup", consumes = MediaType.APPLICATION_JSON_VALUE)

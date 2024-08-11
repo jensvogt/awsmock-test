@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+import static software.amazon.awssdk.services.s3.model.BucketVersioningStatus.ENABLED;
 
 @Slf4j
 @Service
@@ -40,6 +44,18 @@ public class S3Service {
             log.error("Could not create bucket, bucketName: {}", bucketName);
         }
         return "";
+    }
+
+    public int listBucket() {
+
+        ListBucketsResponse response = s3Client.listBuckets();
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Bucket list created");
+            return response.buckets().size();
+        } else {
+            log.error("Could not list buckets");
+        }
+        return 0;
     }
 
     public void putObject(String bucketName, String key, Long size) throws IOException {
@@ -77,6 +93,41 @@ public class S3Service {
         }
     }
 
+    public Long getHead(String bucket, String key) {
+
+        HeadObjectResponse response = s3Client.headObject(HeadObjectRequest.builder().bucket(bucket).key(key).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Got object metadata, bucket: {}, key: {}, size: {}", bucket, key, response.contentLength());
+            return response.contentLength();
+        } else {
+            log.error("Could not get metadata of object, bucket: {}, key: {}", bucket, key);
+        }
+        return 0L;
+    }
+
+    public void putBucketVersioning(String bucket) {
+
+        VersioningConfiguration versioningConfiguration = VersioningConfiguration.builder().status(ENABLED).build();
+        PutBucketVersioningResponse response = s3Client.putBucketVersioning(PutBucketVersioningRequest.builder().bucket(bucket).versioningConfiguration(versioningConfiguration).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Put bucket versioning, bucket: {}", bucket);
+        } else {
+            log.error("Could not put bucket versioning, bucket: {}", bucket);
+        }
+    }
+
+    public int listObjectVersions(String bucket, String prefix) {
+
+        ListObjectVersionsResponse response = s3Client.listObjectVersions(ListObjectVersionsRequest.builder().bucket(bucket).prefix(prefix).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("List object version, bucket: {}, prefix: {}, size: {}", bucket, prefix, response.versions().size());
+            return response.versions().size();
+        } else {
+            log.error("Could not list object versions, bucket: {}, prefix: {}", bucket, prefix);
+        }
+        return 0;
+    }
+
     public void uploadObject(String bucketName, String key, int size) throws IOException {
 
         Path destination = writeRandomFile(size * 1024 * 1024);
@@ -109,13 +160,58 @@ public class S3Service {
         FileUtils.deleteQuietly(destination.toFile());
     }
 
-    public void deleteBucket(String bucketName) {
+    public void copyObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey) {
 
-        DeleteBucketResponse response = s3Client.deleteBucket(DeleteBucketRequest.builder().bucket(bucketName).build());
+        CopyObjectResponse response = s3Client.copyObject(CopyObjectRequest.builder()
+                .sourceBucket(sourceBucket)
+                .sourceKey(sourceKey)
+                .destinationBucket(destinationBucket)
+                .destinationKey(destinationKey)
+                .build());
+
         if (response.sdkHttpResponse().isSuccessful()) {
-            log.info("Bucket deleted {}", bucketName);
+            log.info("Object copied, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
         } else {
-            log.error("Could not delete bucket, bucketName: {}", bucketName);
+            log.error("Could not copy object, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
+        }
+    }
+
+    public void deleteBucket(String bucket) {
+
+        DeleteBucketResponse response = s3Client.deleteBucket(DeleteBucketRequest.builder().bucket(bucket).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Bucket deleted, bucket: {}", bucket);
+        } else {
+            log.error("Could not delete bucket, bucketName: {}", bucket);
+        }
+    }
+
+    public void deleteObject(String bucket, String key) {
+
+        DeleteObjectResponse response = s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(key).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Object deleted, bucket: {}, key: {}", bucket, key);
+        } else {
+            log.error("Could not delete object, bucket: {}, key: {}", bucket, key);
+        }
+    }
+
+    public void deleteObjects(String bucket, String key1, String key2) {
+
+        List<ObjectIdentifier> objectIdentifiers = new ArrayList<>();
+        objectIdentifiers.add(ObjectIdentifier.builder().key(key1).build());
+        objectIdentifiers.add(ObjectIdentifier.builder().key(key2).build());
+
+        DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+                .bucket(bucket)
+                .delete(d -> d.objects(objectIdentifiers).build())
+                .build();
+
+        DeleteObjectsResponse response = s3Client.deleteObjects(deleteObjectsRequest);
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Objects deleted, bucket: {}, key1: {}, key2: {}", bucket, key1, key2);
+        } else {
+            log.error("Could not delete objects, bucket: {}, key1: {}, key2: {}", bucket, key1, key2);
         }
     }
 
