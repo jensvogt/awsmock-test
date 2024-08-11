@@ -48,6 +48,25 @@ public class SQSCommandController {
         return ResponseEntity.ok(attributes);
     }
 
+    @PostMapping(path = "/setQueueAttribute", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Map<QueueAttributeName, String>> setQueueAttribute(@RequestParam("queueUrl") String queueUrl, @RequestParam("attributeValue") String attributeValue) {
+
+        log.info("POST request, setQueueAttribute, queueUrl: {} attributeValue: {}", queueUrl, attributeValue);
+        sqsService.setQueueAttribute(queueUrl, attributeValue);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/changeVisibility", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Map<QueueAttributeName, String>> changeVisibility(@RequestParam("queueUrl") String queueUrl, @RequestParam("visibility") int visibility,
+                                                                     @RequestParam("receiptHandle") String receiptHandle) {
+
+        log.info("POST request, changeVisibility, queueUrl: {} visibility: {}, receiptHandle: {}", queueUrl, visibility, receiptHandle);
+        sqsService.changeMessageVisibility(queueUrl, visibility, receiptHandle);
+
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(path = "/getQueueUrl", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> getQueueUrl(@RequestParam("queueName") String queueName) {
 
@@ -55,6 +74,15 @@ public class SQSCommandController {
         String queueUrl = sqsService.getQueueUrl(queueName);
 
         return ResponseEntity.ok(queueUrl);
+    }
+
+    @GetMapping(path = "/purgeQueue", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> purgeQueue(@RequestParam("queueUrl") String queueUrl) {
+
+        log.info("GET request, purgeQueue, queueName: {}", queueUrl);
+        sqsService.purgeQueue(queueUrl);
+
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(path = "/sqsTemplate", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -75,8 +103,17 @@ public class SQSCommandController {
         return ResponseEntity.ok(messageId);
     }
 
+    @PostMapping(path = "/sendMessageAttributes", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Integer> sendMessageAttributes(@RequestParam("queueUrl") String queueUrl, @RequestBody TestMessage testMessage) throws JsonProcessingException {
+
+        log.info("POST request, sendMessageAttributes, queueUrl: {} testMessage: {}", queueUrl, testMessage);
+        int count = sqsService.sendMessageAttributes(queueUrl, testMessage);
+
+        return ResponseEntity.ok(count);
+    }
+
     @GetMapping(path = "/receiveMessages", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<TestMessage>> receiveMessage(@RequestParam("queueUrl") String queueUrl,@RequestParam("maxMessages") int maxMessages, @RequestParam("maxWaitTime") int maxWaitTime) throws JsonProcessingException {
+    ResponseEntity<List<TestMessage>> receiveMessage(@RequestParam("queueUrl") String queueUrl, @RequestParam("maxMessages") int maxMessages, @RequestParam("maxWaitTime") int maxWaitTime) throws JsonProcessingException {
 
         log.info("POST request, receiveMessage, queueUrl: {}", queueUrl);
         List<TestMessage> messages = sqsService.receiveMessages(queueUrl, maxMessages, maxWaitTime);
@@ -89,6 +126,16 @@ public class SQSCommandController {
 
         log.info("DELETE request, deleteMessage, receiptHandle: {}", receiptHandle);
         sqsService.deleteMessage(queueUrl, receiptHandle);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "/deleteMessageBatch", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<Void> deleteMessageBatch(@RequestParam("queueUrl") String queueUrl, @RequestParam("receiptHandle1") String receiptHandle1
+            , @RequestParam("receiptHandle2") String receiptHandle2) {
+
+        log.info("DELETE request, deleteMessageBatch, queueUrl: {}", queueUrl);
+        sqsService.deleteMessageBatch(queueUrl, receiptHandle1, receiptHandle2);
 
         return ResponseEntity.ok().build();
     }

@@ -43,6 +43,31 @@ public class CognitoService {
         }
     }
 
+    public void createUserPoolClient(String userPoolId, String clientName) {
+
+        TokenValidityUnitsType tokenValidityUnitsType = TokenValidityUnitsType.builder()
+                .accessToken(TimeUnitsType.DAYS)
+                .idToken(TimeUnitsType.DAYS)
+                .refreshToken(TimeUnitsType.DAYS)
+                .build();
+        CreateUserPoolClientResponse response = cognitoIdentityProviderClient.createUserPoolClient(CreateUserPoolClientRequest.builder().userPoolId(userPoolId).clientName(clientName).accessTokenValidity(1).tokenValidityUnits(tokenValidityUnitsType).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User pool client created, userPoolId: {}, clientName: {}", userPoolId, clientName);
+        } else {
+            log.error("Could not create user pool client, userPoolId: {}, clientName: {}", userPoolId, clientName);
+        }
+    }
+
+    public void createUserPoolDomain(String userPoolId, String domainName) {
+
+        CreateUserPoolDomainResponse response = cognitoIdentityProviderClient.createUserPoolDomain(CreateUserPoolDomainRequest.builder().userPoolId(userPoolId).domain(domainName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User pool domain created, userPoolId: {}, clientName: {}", userPoolId, domainName);
+        } else {
+            log.error("Could not create user pool domain, userPoolId: {}, clientName: {}", userPoolId, domainName);
+        }
+    }
+
     public void deleteUserPool(String userPoolId) {
 
         DeleteUserPoolResponse response = cognitoIdentityProviderClient.deleteUserPool(DeleteUserPoolRequest.builder().userPoolId(userPoolId).build());
