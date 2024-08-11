@@ -88,6 +88,38 @@ public class CognitoService {
         }
     }
 
+    public void enableUser(String userPoolId, String userName) {
+
+        AdminEnableUserResponse response = cognitoIdentityProviderClient.adminEnableUser(AdminEnableUserRequest.builder().userPoolId(userPoolId).username(userName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User enabled, userPoolId: {}, userName: {}", userPoolId, userName);
+        } else {
+            log.error("Could not enable user, userPoolId: {}, userName: {}", userPoolId, userName);
+        }
+    }
+
+    public void disableUser(String userPoolId, String userName) {
+
+        AdminDisableUserResponse response = cognitoIdentityProviderClient.adminDisableUser(AdminDisableUserRequest.builder().userPoolId(userPoolId).username(userName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User disabled, userPoolId: {}, userName: {}", userPoolId, userName);
+        } else {
+            log.error("Could not disable user, userPoolId: {}, userName: {}", userPoolId, userName);
+        }
+    }
+
+    public String signupUser(String userName, String clientId, String password) {
+
+        SignUpResponse response = cognitoIdentityProviderClient.signUp(SignUpRequest.builder().username(userName).clientId(clientId).password(password).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User sign up, userName: {}, clientId: {}", userName, clientId);
+            return response.userSub();
+        } else {
+            log.error("Could not sign up, userName: {}, clientId: {}", userName, clientId);
+        }
+        return "";
+    }
+
     public void deleteUser(String userPoolId, String userName) {
 
         AdminDeleteUserResponse response = cognitoIdentityProviderClient.adminDeleteUser(AdminDeleteUserRequest.builder().userPoolId(userPoolId).username(userName).build());
@@ -116,6 +148,18 @@ public class CognitoService {
         } else {
             log.error("Could not add user to group, userPoolId: {}, groupName: {}, userName: {}", userPoolId, groupName, userName);
         }
+    }
+
+    public int listUsersInGroup(String userPoolId, String groupName) {
+
+        ListUsersInGroupResponse response = cognitoIdentityProviderClient.listUsersInGroup(ListUsersInGroupRequest.builder().userPoolId(userPoolId).groupName(groupName).limit(10).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("List users in group, userPoolId: {}, groupName: {}, count: {}", userPoolId, groupName, response.users().size());
+            return response.users().size();
+        } else {
+            log.error("Could not list users in group, userPoolId: {}, groupName: {}", userPoolId, groupName);
+        }
+        return 0;
     }
 
     public void removeUserFromGroup(String userPoolId, String groupName, String userName) {
