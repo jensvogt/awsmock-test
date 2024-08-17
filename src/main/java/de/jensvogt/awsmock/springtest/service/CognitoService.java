@@ -120,6 +120,16 @@ public class CognitoService {
         return "";
     }
 
+    public void adminConfirmSignUp(String userPoolId, String userName) {
+
+        AdminConfirmSignUpResponse response = cognitoIdentityProviderClient.adminConfirmSignUp(AdminConfirmSignUpRequest.builder().userPoolId(userPoolId).username(userName).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("User confirm sign up, userPoolId: {}, userName: {}", userPoolId, userName);
+        } else {
+            log.error("Could not confirm sign up, userPoolId: {}, userName: {}", userPoolId, userName);
+        }
+    }
+
     public void deleteUser(String userPoolId, String userName) {
 
         AdminDeleteUserResponse response = cognitoIdentityProviderClient.adminDeleteUser(AdminDeleteUserRequest.builder().userPoolId(userPoolId).username(userName).build());

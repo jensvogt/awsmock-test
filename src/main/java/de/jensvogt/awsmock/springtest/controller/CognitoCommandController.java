@@ -105,6 +105,15 @@ public class CognitoCommandController {
         return ResponseEntity.ok(userSub);
     }
 
+    @PostMapping(path = "/adminConfirmSignUp", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> adminConfirmSignUp(@RequestParam("userPoolId") String userPoolId, @RequestParam("userName") String userName) {
+
+        log.info("POST request, adminConfirmSignUp, userPoolId: {}, userName: {}", userPoolId, userName);
+        cognitoService.adminConfirmSignUp(userPoolId, userName);
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping(path = "/deleteUser", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> deleteUser(@RequestParam("userPoolId") String userPoolId, @RequestParam("userName") String userName) {
 
