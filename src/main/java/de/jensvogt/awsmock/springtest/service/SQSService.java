@@ -157,12 +157,27 @@ public class SQSService {
 
     public void sendSqsTemplate(TestMessage testMessage) {
 
-        log.info("Received send message via sns template request, testMessage: {}", testMessage);
+        log.info("Received send message via sqs template request, testMessage: {}", testMessage);
 
         SendResult<TestMessage> response = sqsTemplate.send("test-queue", testMessage);
         log.info("Send message via sns template, testMessage: {} endpoint: {}", testMessage, response.endpoint());
 
     }
+
+    /*
+    public void sendManySqsTemplate(TestMessage testMessage) throws JsonProcessingException {
+
+        log.info("Received send message via sqs template request, testMessage: {}", testMessage);
+
+        List<Message> messages = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            Message message = Message.builder().body(objectMapper.writeValueAsString(testMessage)).build();
+            messages.add(message);
+        }
+        SendResult<TestMessage> response = sqsTemplate.sendMany("test-queue", messages);
+        log.info("Send message via sns template, testMessage: {} endpoint: {}", testMessage, response.endpoint());
+
+    }*/
 
     public int sendMessageAttributes(String queueUrl, TestMessage testMessage) throws JsonProcessingException {
 
