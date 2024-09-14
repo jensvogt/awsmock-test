@@ -72,7 +72,7 @@ public class DynamodbService {
 
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("orgaNr", AttributeValue.builder().n("1").build());
-        PutItemResponse response = dynamoDbClient.putItem(PutItemRequest.builder().item(item).build());
+        PutItemResponse response = dynamoDbClient.putItem(PutItemRequest.builder().tableName(tableName).item(item).build());
 
         if (response.sdkHttpResponse().isSuccessful()) {
             log.info("Put item tableName: {}", tableName);
@@ -85,12 +85,26 @@ public class DynamodbService {
 
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("orgaNr", AttributeValue.builder().n("1").build());
-        GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder().key(key).build());
+        GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder().tableName(tableName).key(key).build());
 
         if (response.sdkHttpResponse().isSuccessful()) {
             log.info("Get item tableName: {}", tableName);
         } else {
             log.error("Could not get item table, name: {}", tableName);
         }
+        assert (response.item().get("orgaNr").n().equalsIgnoreCase("1"));
+    }
+
+    public void scan(String tableName) {
+
+        ScanResponse response = dynamoDbClient.scan(ScanRequest.builder().tableName(tableName).build());
+
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Get item tableName: {}", tableName);
+        } else {
+            log.error("Could not get item table, name: {}", tableName);
+        }
+        assert (response.hasItems());
+        assert (response.count() == 1);
     }
 }
