@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -62,6 +65,32 @@ public class DynamodbService {
             log.info("Table deleted, tableName: {}", tableName);
         } else {
             log.error("Could not delete table, name: {}", tableName);
+        }
+    }
+
+    public void putItem(String tableName) {
+
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("orgaNr", AttributeValue.builder().n("1").build());
+        PutItemResponse response = dynamoDbClient.putItem(PutItemRequest.builder().item(item).build());
+
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Put item tableName: {}", tableName);
+        } else {
+            log.error("Could not put item table, name: {}", tableName);
+        }
+    }
+
+    public void getItem(String tableName) {
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("orgaNr", AttributeValue.builder().n("1").build());
+        GetItemResponse response = dynamoDbClient.getItem(GetItemRequest.builder().key(key).build());
+
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Get item tableName: {}", tableName);
+        } else {
+            log.error("Could not get item table, name: {}", tableName);
         }
     }
 }

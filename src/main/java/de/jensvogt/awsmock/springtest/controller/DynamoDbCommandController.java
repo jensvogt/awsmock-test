@@ -50,4 +50,22 @@ public class DynamoDbCommandController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping(path = "/putItem", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> putItem(@RequestParam("tableName") String tableName) {
+
+        log.info("POST request, putItem, tableName: {}", tableName);
+        dynamodbService.putItem(tableName);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/getItem", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> getItem(@RequestParam("tableName") String tableName) {
+
+        log.info("POST request, getItem, tableName: {}", tableName);
+        dynamodbService.getItem(tableName);
+
+        return ResponseEntity.ok().build();
+    }
 }
