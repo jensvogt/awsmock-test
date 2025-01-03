@@ -10,10 +10,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.transfer.s3.S3TransferManager;
-import software.amazon.awssdk.transfer.s3.model.DownloadFileRequest;
-import software.amazon.awssdk.transfer.s3.model.FileDownload;
-import software.amazon.awssdk.transfer.s3.model.FileUpload;
-import software.amazon.awssdk.transfer.s3.model.UploadFileRequest;
+import software.amazon.awssdk.transfer.s3.model.*;
 
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -131,6 +128,8 @@ public class S3Service {
     public void uploadObject(String bucketName, String key, int size) throws IOException {
 
         Path destination = writeRandomFile(size * 1024 * 1024);
+        log.debug("Object created, bucketName: {}, key: {}, size: {}MB", bucketName, key, size);
+
         UploadFileRequest uploadFileRequest =
                 UploadFileRequest.builder()
                         .putObjectRequest(r -> r.bucket(bucketName).key(key))
@@ -140,7 +139,7 @@ public class S3Service {
         FileUpload uploadFile = s3TransferManager.uploadFile(uploadFileRequest);
         uploadFile.completionFuture().join();
 
-        log.info("Object uploaded, bucketName: {}, key: {}, size: {}", bucketName, key, size);
+        log.info("Object uploaded, bucketName: {}, key: {}, size: {}MB", bucketName, key, size);
         FileUtils.deleteQuietly(destination.toFile());
     }
 
@@ -173,6 +172,28 @@ public class S3Service {
             log.info("Object copied, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
         } else {
             log.error("Could not copy object, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
+        }
+    }
+
+    public void copyBigObject(String sourceBucket, String sourceKey, String destinationBucket, String destinationKey) {
+
+        CopyObjectRequest copyObjectRequest =
+                CopyObjectRequest.builder()
+                        .sourceBucket(sourceBucket)
+                        .sourceKey(sourceKey)
+                        .destinationBucket(destinationBucket)
+                        .destinationKey(destinationKey)
+                        .serverSideEncryption("aws:kms")
+                        .build();
+        CopyRequest copyRequest = CopyRequest.builder().copyObjectRequest(copyObjectRequest).build();
+
+        Copy copy = s3TransferManager.copy(copyRequest);
+        copy.completionFuture().join();
+
+        if (copy.completionFuture().isDone()) {
+            log.info("Big object copied, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
+        } else {
+            log.error("Could not copy big object, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
         }
     }
 
