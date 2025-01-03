@@ -83,7 +83,7 @@ public class S3CommandController {
     @GetMapping(path = "/uploadObject", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> uploadObject(@RequestParam("bucketName") String bucketName, @RequestParam("key") String key, @RequestParam("size") int size) throws IOException {
 
-        log.info("GET request, uploadObject, bucketName: {}, key: {}, size: {}", bucketName, key, size);
+        log.info("GET request, uploadObject, bucketName: {}, key: {}, size: {}MB", bucketName, key, size);
         s3Service.uploadObject(bucketName, key, size);
 
         return ResponseEntity.ok().build();
@@ -104,6 +104,16 @@ public class S3CommandController {
 
         log.info("POST request, copyObject, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
         s3Service.copyObject(sourceBucket, sourceKey, destinationBucket, destinationKey);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/copyBigObject", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> copyBigObject(@RequestParam("sourceBucket") String sourceBucket, @RequestParam("sourceKey") String sourceKey,
+                                         @RequestParam("destinationBucket") String destinationBucket, @RequestParam("destinationKey") String destinationKey) {
+
+        log.info("POST request, copyBigObject, sourceBucket: {}, sourceKey: {}, destinationBucket: {}, destinationKey: {}", sourceBucket, sourceKey, destinationBucket, destinationKey);
+        s3Service.copyBigObject(sourceBucket, sourceKey, destinationBucket, destinationKey);
 
         return ResponseEntity.ok().build();
     }
