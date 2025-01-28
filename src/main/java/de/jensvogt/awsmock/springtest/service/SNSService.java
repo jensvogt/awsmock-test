@@ -61,6 +61,16 @@ public class SNSService {
         }
     }
 
+    public void publish(String topicArn, String message) {
+
+        PublishResponse response = snsClient.publish(PublishRequest.builder().topicArn(topicArn).message(message).build());
+        if (response.sdkHttpResponse().isSuccessful()) {
+            log.info("Publish from endpoint, topicArn: {}", topicArn);
+        } else {
+            log.error("Could not publish from endpoint, topicArn: {}", topicArn);
+        }
+    }
+
     public void deleteTopic(String topicArn) {
 
         DeleteTopicResponse response = snsClient.deleteTopic(DeleteTopicRequest.builder().topicArn(topicArn).build());
