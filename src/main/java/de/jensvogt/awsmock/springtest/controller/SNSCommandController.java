@@ -51,6 +51,15 @@ public class SNSCommandController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(path = "/publish", consumes = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity<String> publish(@RequestParam("topicArn") String topicArn, @RequestBody String message) {
+
+        log.info("POST request, publish, topicArn: {}", topicArn);
+        snsService.publish(topicArn, message);
+
+        return ResponseEntity.ok().build();
+    }
+
     @DeleteMapping(path = "/deleteTopic", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<String> deleteTopic(@RequestParam("topicArn") String topicArn) {
 
