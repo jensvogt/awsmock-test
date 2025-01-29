@@ -26,16 +26,16 @@ public class KMSCommandController {
     @PostMapping(path = "/createSymmetricKey", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<KeyMetadata> createSymmetricKey(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
                                                    @RequestParam("description") String description) throws JsonProcessingException {
+
         log.info("POST request, createSymmetricKey, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createSymmetricKey(keySpec, keyUsage, description);
 
         return ResponseEntity.ok(keyMetadata);
     }
 
-
     @PostMapping(path = "/createRSA2048Key", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<String> createRSA2048Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
-                                            @RequestParam("description") String description) throws JsonProcessingException {
+    ResponseEntity<KeyMetadata> createRSA2048Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
+                                                 @RequestParam("description") String description) throws JsonProcessingException {
 
         log.info("POST request, createRSA2048Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA2048Key(keySpec, keyUsage, description);
@@ -57,14 +57,14 @@ public class KMSCommandController {
     ResponseEntity<KeyMetadata> createRSA4096Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
                                                  @RequestParam("description") String description) throws JsonProcessingException {
 
-      log.info("POST request, createRSA4096Key, keySpec: {}", keySpec);
+        log.info("POST request, createRSA4096Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA4096Key(keySpec, keyUsage, description);
 
         return ResponseEntity.ok(keyMetadata);
     }
 
     @PostMapping(path = "/listKeys", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<String> listKeys(@RequestParam("limit") int limit) throws JsonProcessingException {
+    ResponseEntity<List<KeyListEntry>> listKeys(@RequestParam("limit") int limit) throws JsonProcessingException {
 
         log.info("POST request, listKeys, limit: {}", limit);
         List<KeyListEntry> keys = kmsService.listKeys(limit);
