@@ -5,7 +5,6 @@ import lombok.Data;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
 
 @Data
-@Builder
 public class KeyMetadataDto {
 
     private String arn;

@@ -1,6 +1,7 @@
 package de.jensvogt.awsmock.springtest.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.jensvogt.awsmock.springtest.dto.KeyDto;
 import de.jensvogt.awsmock.springtest.dto.KeyMetadataDto;
 import de.jensvogt.awsmock.springtest.service.KMSService;
 import lombok.RequiredArgsConstructor;
@@ -36,45 +37,45 @@ public class KMSCommandController {
     }
 
     @PostMapping(path = "/createRSA2048Key")
-    ResponseEntity<KeyMetadata> createRSA2048Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
-                                                 @RequestParam("description") String description) throws JsonProcessingException {
+    ResponseEntity<KeyMetadataDto> createRSA2048Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
+                                                    @RequestParam("description") String description) throws JsonProcessingException {
 
         log.info("POST request, createRSA2048Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA2048Key(keySpec, keyUsage, description);
         log.info("POST request succeeded, createRSA2048Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
-        return ResponseEntity.ok(keyMetadata);
+        return ResponseEntity.ok(new KeyMetadataDto(keyMetadata));
     }
 
     @PostMapping(path = "/createRSA3072Key")
-    ResponseEntity<KeyMetadata> createRSA3072Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
-                                                 @RequestParam("description") String description) throws JsonProcessingException {
+    ResponseEntity<KeyMetadataDto> createRSA3072Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
+                                                    @RequestParam("description") String description) throws JsonProcessingException {
 
         log.info("POST request, createRSA3072Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA3072Key(keySpec, keyUsage, description);
         log.info("POST request succeeded, createRSA3072Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
-        return ResponseEntity.ok(keyMetadata);
+        return ResponseEntity.ok(new KeyMetadataDto(keyMetadata));
     }
 
     @PostMapping(path = "/createRSA4096Key")
-    ResponseEntity<KeyMetadata> createRSA4096Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
-                                                 @RequestParam("description") String description) throws JsonProcessingException {
+    ResponseEntity<KeyMetadataDto> createRSA4096Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
+                                                    @RequestParam("description") String description) throws JsonProcessingException {
 
         log.info("POST request, createRSA4096Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA4096Key(keySpec, keyUsage, description);
         log.info("POST request succeeded, createRSA4096Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
-        return ResponseEntity.ok(keyMetadata);
+        return ResponseEntity.ok(new KeyMetadataDto(keyMetadata));
     }
 
     @PostMapping(path = "/listKeys")
-    ResponseEntity<List<KeyListEntry>> listKeys(@RequestParam("limit") int limit) throws JsonProcessingException {
+    ResponseEntity<List<KeyDto>> listKeys(@RequestParam("limit") int limit) throws JsonProcessingException {
 
         log.info("POST request, listKeys, limit: {}", limit);
         List<KeyListEntry> keys = kmsService.listKeys(limit);
         log.info("POST request succeeded, listKeys, count: {}", keys.size());
 
-        return ResponseEntity.ok(keys);
+        return ResponseEntity.ok(keys.stream().map(KeyDto::new).toList());
     }
 }
