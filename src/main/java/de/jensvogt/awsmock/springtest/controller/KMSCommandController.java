@@ -29,6 +29,7 @@ public class KMSCommandController {
 
         log.info("POST request, createSymmetricKey, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createSymmetricKey(keySpec, keyUsage, description);
+        log.info("POST request succeeded, createSymmetricKey, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
         return ResponseEntity.ok(keyMetadata);
     }
@@ -39,6 +40,7 @@ public class KMSCommandController {
 
         log.info("POST request, createRSA2048Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA2048Key(keySpec, keyUsage, description);
+        log.info("POST request succeeded, createRSA2048Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
         return ResponseEntity.ok(keyMetadata);
     }
@@ -49,6 +51,7 @@ public class KMSCommandController {
 
         log.info("POST request, createRSA3072Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA3072Key(keySpec, keyUsage, description);
+        log.info("POST request succeeded, createRSA3072Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
         return ResponseEntity.ok(keyMetadata);
     }
@@ -59,6 +62,7 @@ public class KMSCommandController {
 
         log.info("POST request, createRSA4096Key, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createRSA4096Key(keySpec, keyUsage, description);
+        log.info("POST request succeeded, createRSA4096Key, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
         return ResponseEntity.ok(keyMetadata);
     }
@@ -68,6 +72,7 @@ public class KMSCommandController {
 
         log.info("POST request, listKeys, limit: {}", limit);
         List<KeyListEntry> keys = kmsService.listKeys(limit);
+        log.info("POST request succeeded, listKeys, count: {}", keys.size());
 
         return ResponseEntity.ok(keys);
     }
