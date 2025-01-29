@@ -28,27 +28,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Build
         run: |
           mvn clean install -DskipTests
 
       - name: Build Docker
         run: |
-          VERSION="${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          VERSION=$(git tag | tail -1)
           cd docker 
           docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} -t awsmock-test:$VERSION .
-
-  #  test:
-  #    needs: build
-  #    runs-on: self-hosted
-  #    steps:
-  #      - name: Checkout
-  #        uses: actions/checkout@v4
-  #
-  #      - run: cmake .
-  #      - run: cmake --build . -j 16
-  #      - run: ctest -V
 
   push_to_registry:
     name: Push Docker image to Docker Hub
@@ -66,7 +54,7 @@ jobs:
 
       - name: Tag images
         run: |
-          VERSION="${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}"
+          VERSION=$(git tag | tail -1)
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
           docker push ${{ secrets.DOCKER_USER }}/awsmock:$VERSION
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:latest
