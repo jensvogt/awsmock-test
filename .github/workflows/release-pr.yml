@@ -57,6 +57,6 @@ jobs:
         run: |
           VERSION=$(cat pom.xml | grep "SNAPSHOT" | sed 's/[<version>|</version>|SNAPSHOT|-]//g' | awk '{print $1}')
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
-          docker push ${{ secrets.DOCKER_USER }}/awsmock:$VERSION
+          docker push ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:latest
           docker push ${{ secrets.DOCKER_USER }}/awsmock-test:latest
