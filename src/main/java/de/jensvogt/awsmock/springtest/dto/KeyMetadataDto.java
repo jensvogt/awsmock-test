@@ -1,20 +1,25 @@
 package de.jensvogt.awsmock.springtest.dto;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
 
 @Data
 public class KeyMetadataDto {
 
+    @JsonProperty("KeyArn")
     private String arn;
 
+    @JsonProperty("KeyId")
     private String keyId;
 
+    @JsonProperty("AccountId")
     private String accountId;
 
+    @JsonProperty("KeySpec")
     private String keySpec;
 
+    @JsonProperty("KeyUsage")
     private String keyUsage;
 
     public KeyMetadataDto(KeyMetadata keyMetadata) {
