@@ -28,6 +28,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Build
+        run: |
+          mvn clean install -DskipTests
+          
       - name: Build Docker
         run: |
           VERSION=$(cat version.txt)
