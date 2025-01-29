@@ -24,6 +24,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentity.CognitoIdentityClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.kms.KmsClient;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
@@ -133,6 +134,12 @@ public class AwsConfig {
     @Primary
     public DynamoDbClient dynamoDbClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
         return DynamoDbClient.builder().credentialsProvider(awsCredentialsProvider).endpointOverride(URI.create(awsmockEndpoint)).region(Region.EU_CENTRAL_1).build();
+    }
+
+    @Bean
+    @Primary
+    public KmsClient kmsClient(@Autowired(required = false) AwsCredentialsProvider awsCredentialsProvider) {
+        return buildClient(KmsClient.builder(), awsCredentialsProvider);
     }
 
     /**
