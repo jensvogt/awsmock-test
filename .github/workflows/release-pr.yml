@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Docker
         run: |
-          VERSION=$(cat pom.xml | grep "SNAPSHOT" | sed 's/[<version>|</version>|SNAPSHOT|-]//g' | awk '{print $1}')
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           echo "Version: ${VERSION}"
           cd docker 
           docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} --build-arg VERSION=$VERSION -t awsmock-test:$VERSION .
@@ -55,7 +55,7 @@ jobs:
 
       - name: Tag images
         run: |
-          VERSION=$(cat pom.xml | grep "SNAPSHOT" | sed 's/[<version>|</version>|SNAPSHOT|-]//g' | awk '{print $1}')
+          VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
           docker push ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:latest
