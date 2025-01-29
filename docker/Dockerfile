@@ -1,7 +1,7 @@
 FROM openjdk:21-jdk-slim
 
 RUN mkdir /root/.aws
-COPY awsmock-spring-test-0.0.1-SNAPSHOT.jar awsmock-spring-test.jar
+COPY awsmock-test-0.0.1-SNAPSHOT.jar awsmock-test.jar
 COPY config /root/.aws/config
 COPY credentials /root/.aws/credentials
 
