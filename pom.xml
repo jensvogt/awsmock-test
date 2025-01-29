@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>de.jensvogt</groupId>
-    <artifactId>awsmock-spring-test</artifactId>
+    <artifactId>awsmock-test</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>awsmock-test</name>
     <description>awsmock-test</description>
