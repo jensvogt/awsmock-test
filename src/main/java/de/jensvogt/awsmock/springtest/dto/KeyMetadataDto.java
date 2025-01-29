@@ -1,11 +1,9 @@
 package de.jensvogt.awsmock.springtest.dto;
 
-import lombok.Builder;
 import lombok.Data;
 import software.amazon.awssdk.services.kms.model.KeyMetadata;
 
 @Data
-@Builder
 public class KeyMetadataDto {
 
     private String arn;
