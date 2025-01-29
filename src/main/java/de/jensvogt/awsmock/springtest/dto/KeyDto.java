@@ -10,7 +10,7 @@ public class KeyDto {
     @JsonProperty("KeyId")
     private String key;
 
-    @JsonProperty("KeyArn")
+    @JsonProperty("Arn")
     private String arn;
 
     public KeyDto(KeyListEntry key) {
