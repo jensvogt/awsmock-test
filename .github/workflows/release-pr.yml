@@ -37,7 +37,7 @@ jobs:
           VERSION=$(cat pom.xml | grep "SNAPSHOT" | sed 's/[<version>|</version>|SNAPSHOT|-]//g' | awk '{print $1}')
           echo "Version: ${VERSION}"
           cd docker 
-          docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} -t awsmock-test:$VERSION .
+          docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} --build-arg VERSION=$VERSION -t awsmock-test:$VERSION .
 
   push_to_registry:
     name: Push Docker image to Docker Hub
