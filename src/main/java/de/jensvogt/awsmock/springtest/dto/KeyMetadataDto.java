@@ -7,7 +7,7 @@ import software.amazon.awssdk.services.kms.model.KeyMetadata;
 @Data
 public class KeyMetadataDto {
 
-    @JsonProperty("KeyArn")
+    @JsonProperty("Arn")
     private String arn;
 
     @JsonProperty("KeyId")
