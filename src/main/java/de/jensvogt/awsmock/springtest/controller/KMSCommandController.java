@@ -1,6 +1,7 @@
 package de.jensvogt.awsmock.springtest.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import de.jensvogt.awsmock.springtest.dto.KeyMetadataDto;
 import de.jensvogt.awsmock.springtest.service.KMSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,18 +24,18 @@ public class KMSCommandController {
 
     private final KMSService kmsService;
 
-    @PostMapping(path = "/createSymmetricKey", consumes = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<KeyMetadata> createSymmetricKey(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
-                                                   @RequestParam("description") String description) throws JsonProcessingException {
+    @PostMapping(path = "/createSymmetricKey")
+    ResponseEntity<KeyMetadataDto> createSymmetricKey(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
+                                                      @RequestParam("description") String description) throws JsonProcessingException {
 
         log.info("POST request, createSymmetricKey, keySpec: {}", keySpec);
         KeyMetadata keyMetadata = kmsService.createSymmetricKey(keySpec, keyUsage, description);
         log.info("POST request succeeded, createSymmetricKey, keySpec: {} keyId: {}", keySpec, keyMetadata.keyId());
 
-        return ResponseEntity.ok(keyMetadata);
+        return ResponseEntity.ok(new KeyMetadataDto(keyMetadata));
     }
 
-    @PostMapping(path = "/createRSA2048Key", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/createRSA2048Key")
     ResponseEntity<KeyMetadata> createRSA2048Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
                                                  @RequestParam("description") String description) throws JsonProcessingException {
 
@@ -45,7 +46,7 @@ public class KMSCommandController {
         return ResponseEntity.ok(keyMetadata);
     }
 
-    @PostMapping(path = "/createRSA3072Key", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/createRSA3072Key")
     ResponseEntity<KeyMetadata> createRSA3072Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
                                                  @RequestParam("description") String description) throws JsonProcessingException {
 
@@ -56,7 +57,7 @@ public class KMSCommandController {
         return ResponseEntity.ok(keyMetadata);
     }
 
-    @PostMapping(path = "/createRSA4096Key", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/createRSA4096Key")
     ResponseEntity<KeyMetadata> createRSA4096Key(@RequestParam("keySpec") String keySpec, @RequestParam("keyUsage") String keyUsage,
                                                  @RequestParam("description") String description) throws JsonProcessingException {
 
@@ -67,7 +68,7 @@ public class KMSCommandController {
         return ResponseEntity.ok(keyMetadata);
     }
 
-    @PostMapping(path = "/listKeys", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/listKeys")
     ResponseEntity<List<KeyListEntry>> listKeys(@RequestParam("limit") int limit) throws JsonProcessingException {
 
         log.info("POST request, listKeys, limit: {}", limit);
