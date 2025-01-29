@@ -35,6 +35,7 @@ jobs:
       - name: Build Docker
         run: |
           VERSION=$(git tag | tail -1)
+          echo "Version: ${VERSION}"
           cd docker 
           docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} -t awsmock-test:$VERSION .
 
