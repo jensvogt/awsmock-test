@@ -8,4 +8,4 @@ COPY credentials /root/.aws/credentials
 ENV AWS_PROFILE=awsmock
 EXPOSE 10100 10100
 
-ENTRYPOINT ["java","-jar","/awsmock-spring-test.jar"]
+ENTRYPOINT ["java","-jar","/awsmock-test.jar"]

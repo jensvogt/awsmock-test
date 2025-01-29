@@ -8,6 +8,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           # this assumes that you have created a personal access token
           # (PAT) and configured it as a GitHub action secret named
@@ -15,7 +16,7 @@ jobs:
           token: ${{ secrets.GH_AUTH_TOKEN }}
           # this is a built-in strategy in release-please, see "Action Inputs"
           # for more options
-          release-type: simple
+          release-type: maven
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
 
@@ -31,10 +32,10 @@ jobs:
       - name: Build
         run: |
           mvn clean install -DskipTests
-          
+
       - name: Build Docker
         run: |
-          VERSION=$(cat version.txt)
+          VERSION=${{ steps.release.outputs.tag_name }}
           cd docker 
           docker build --no-cache --build-arg GH_TOKEN=${GH_TOKEN} -t awsmock-test:$VERSION .
 
@@ -65,7 +66,7 @@ jobs:
 
       - name: Tag images
         run: |
-          VERSION=$(cat version.txt)
+          VERSION=${{ steps.release.outputs.tag_name }}
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:$VERSION
           docker push ${{ secrets.DOCKER_USER }}/awsmock:$VERSION
           docker tag awsmock-test:$VERSION ${{ secrets.DOCKER_USER }}/awsmock-test:latest
